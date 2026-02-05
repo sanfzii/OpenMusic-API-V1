@@ -3,7 +3,7 @@ class AlbumsHandler {
     this._service = service;
     this._validator = validator;
 
-    // Binding this context (PENTING AGAR TIDAK ERROR 'this undefined')
+    // Binding this context 
     this.postAlbumHandler = this.postAlbumHandler.bind(this);
     this.getAlbumByIdHandler = this.getAlbumByIdHandler.bind(this);
     this.putAlbumByIdHandler = this.putAlbumByIdHandler.bind(this);

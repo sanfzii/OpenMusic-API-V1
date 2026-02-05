@@ -3,6 +3,7 @@ class SongsHandler {
     this._service = service;
     this._validator = validator;
 
+    // Binding biar 'this' nya ga undefined pas dipanggil router
     this.postSongHandler = this.postSongHandler.bind(this);
     this.getSongsHandler = this.getSongsHandler.bind(this);
     this.getSongByIdHandler = this.getSongByIdHandler.bind(this);
@@ -12,8 +13,17 @@ class SongsHandler {
 
   async postSongHandler(req, res, next) {
     try {
+      // console.log("Data masuk:", req.body); // Cek data body
+      
+      // Validasi dulu
       this._validator.validateSongPayload(req.body);
-      const songId = await this._service.addSong(req.body);
+      
+      const { title, year, genre, performer, duration, albumId } = req.body;
+      
+      const songId = await this._service.addSong({ 
+        title, year, genre, performer, duration, albumId 
+      });
+
       res.status(201).json({
         status: 'success',
         data: { songId },
@@ -25,7 +35,9 @@ class SongsHandler {
 
   async getSongsHandler(req, res, next) {
     try {
-      const songs = await this._service.getSongs();
+      // Ambil query params dari request
+      const { title, performer } = req.query;
+      const songs = await this._service.getSongs(title, performer);
       res.json({
         status: 'success',
         data: { songs },
@@ -39,6 +51,7 @@ class SongsHandler {
     try {
       const { id } = req.params;
       const song = await this._service.getSongById(id);
+      
       res.json({
         status: 'success',
         data: { song },
@@ -52,10 +65,12 @@ class SongsHandler {
     try {
       this._validator.validateSongPayload(req.body);
       const { id } = req.params;
+      
       await this._service.editSongById(id, req.body);
+      
       res.json({
         status: 'success',
-        message: 'Lagu berhasil diperbarui',
+        message: 'Lagu berhasil diupdate',
       });
     } catch (error) {
       next(error);
@@ -66,6 +81,7 @@ class SongsHandler {
     try {
       const { id } = req.params;
       await this._service.deleteSongById(id);
+      
       res.json({
         status: 'success',
         message: 'Lagu berhasil dihapus',
