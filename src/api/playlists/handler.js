@@ -1,3 +1,5 @@
+// handler buat semua endpoint playlist
+// termasuk CRUD playlist, kelola lagu di playlist, dan riwayat aktivitas
 class PlaylistsHandler {
   constructor(service, validator) {
     this._service = service;
@@ -12,10 +14,12 @@ class PlaylistsHandler {
     this.getPlaylistActivitiesHandler = this.getPlaylistActivitiesHandler.bind(this);
   }
 
+  // POST /playlists — bikin playlist baru
   async postPlaylistHandler(req, res, next) {
     try {
       this._validator.validatePlaylistPayload(req.body);
       const { name } = req.body;
+      // ambil userId dari token yang udah di-decode di middleware
       const { id: credentialId } = req.auth.credentials;
 
       const playlistId = await this._service.addPlaylist({ name, owner: credentialId });
@@ -31,6 +35,7 @@ class PlaylistsHandler {
     }
   }
 
+  // GET /playlists — ambil semua playlist milik user (termasuk yg dia kolaborator)
   async getPlaylistsHandler(req, res, next) {
     try {
       const { id: credentialId } = req.auth.credentials;
@@ -47,6 +52,7 @@ class PlaylistsHandler {
     }
   }
 
+  // DELETE /playlists/:id — hapus playlist (cuma owner yang bisa)
   async deletePlaylistByIdHandler(req, res, next) {
     try {
       const { id } = req.params;
@@ -64,6 +70,7 @@ class PlaylistsHandler {
     }
   }
 
+  // POST /playlists/:id/songs — tambahin lagu ke playlist
   async postSongToPlaylistHandler(req, res, next) {
     try {
       this._validator.validatePlaylistSongPayload(req.body);
@@ -71,10 +78,11 @@ class PlaylistsHandler {
       const { songId } = req.body;
       const { id: credentialId } = req.auth.credentials;
 
+      // cek akses dulu (owner atau kolaborator)
       await this._service.verifyPlaylistAccess(id, credentialId);
       await this._service.addSongToPlaylist(id, songId);
 
-      // Log activity (opsional 2)
+      // catat aktivitasnya (fitur opsional)
       await this._service.addPlaylistActivity(id, songId, credentialId, 'add');
 
       res.status(201).json({
@@ -86,6 +94,7 @@ class PlaylistsHandler {
     }
   }
 
+  // GET /playlists/:id/songs — lihat lagu-lagu di dalam playlist
   async getSongsFromPlaylistHandler(req, res, next) {
     try {
       const { id } = req.params;
@@ -105,6 +114,7 @@ class PlaylistsHandler {
     }
   }
 
+  // DELETE /playlists/:id/songs — hapus lagu dari playlist
   async deleteSongFromPlaylistHandler(req, res, next) {
     try {
       this._validator.validatePlaylistSongPayload(req.body);
@@ -115,7 +125,7 @@ class PlaylistsHandler {
       await this._service.verifyPlaylistAccess(id, credentialId);
       await this._service.deleteSongFromPlaylist(id, songId);
 
-      // Log activity (opsional 2)
+      // catat aktivitasnya (fitur opsional)
       await this._service.addPlaylistActivity(id, songId, credentialId, 'delete');
 
       res.json({
@@ -127,7 +137,7 @@ class PlaylistsHandler {
     }
   }
 
-  // Opsional 2: Get playlist activities
+  // GET /playlists/:id/activities — lihat riwayat siapa nambah/hapus lagu
   async getPlaylistActivitiesHandler(req, res, next) {
     try {
       const { id } = req.params;

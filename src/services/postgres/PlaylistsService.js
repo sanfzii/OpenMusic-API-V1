@@ -4,9 +4,11 @@ const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 const AuthorizationError = require('../../exceptions/AuthorizationError');
 
+// service paling besar — ngurusin playlist, songs di playlist, dan activity log
 class PlaylistsService {
   constructor(collaborationsService) {
     this._pool = new Pool();
+    // butuh collaborationsService buat cek akses kolaborator
     this._collaborationsService = collaborationsService;
   }
 
@@ -27,6 +29,7 @@ class PlaylistsService {
     return result.rows[0].id;
   }
 
+  // ambil semua playlist yang user punya atau yang dia jadi kolaborator
   async getPlaylists(owner) {
     const query = {
       text: `SELECT playlists.id, playlists.name, users.username FROM playlists
@@ -55,7 +58,7 @@ class PlaylistsService {
   }
 
   async addSongToPlaylist(playlistId, songId) {
-    // Validasi songId ada di database
+    // cek dulu lagunya ada atau enggak di database
     const songQuery = {
       text: 'SELECT id FROM songs WHERE id = $1',
       values: [songId],
@@ -79,7 +82,9 @@ class PlaylistsService {
     }
   }
 
+  // ambil detail playlist beserta lagu-lagunya
   async getSongsFromPlaylist(playlistId) {
+    // ambil info playlist dulu
     const query = {
       text: `SELECT playlists.id, playlists.name, users.username FROM playlists
         JOIN users ON users.id = playlists.owner
@@ -93,6 +98,7 @@ class PlaylistsService {
       throw new NotFoundError('Playlist tidak ditemukan');
     }
 
+    // terus ambil lagu-lagunya dari tabel junction playlist_songs
     const songsQuery = {
       text: `SELECT songs.id, songs.title, songs.performer FROM songs
         JOIN playlist_songs ON songs.id = playlist_songs.song_id
@@ -102,6 +108,7 @@ class PlaylistsService {
 
     const songsResult = await this._pool.query(songsQuery);
 
+    // gabungin jadi satu objek: { id, name, username, songs: [...] }
     return {
       ...result.rows[0],
       songs: songsResult.rows,
@@ -121,6 +128,7 @@ class PlaylistsService {
     }
   }
 
+  // cek apakah user ini owner playlist-nya
   async verifyPlaylistOwner(id, owner) {
     const query = {
       text: 'SELECT * FROM playlists WHERE id = $1',
@@ -140,13 +148,17 @@ class PlaylistsService {
     }
   }
 
+  // cek akses: bisa owner ATAU kolaborator
+  // logikanya: coba cek owner dulu, kalo bukan owner, cek kolaborator
   async verifyPlaylistAccess(playlistId, userId) {
     try {
       await this.verifyPlaylistOwner(playlistId, userId);
     } catch (error) {
+      // kalo playlist-nya emang gak ada, langsung lempar error
       if (error.name === 'NotFoundError') {
         throw error;
       }
+      // kalo bukan owner, coba cek dia kolaborator atau bukan
       try {
         await this._collaborationsService.verifyCollaborator(playlistId, userId);
       } catch {
@@ -155,7 +167,7 @@ class PlaylistsService {
     }
   }
 
-  // Opsional 2: Playlist Activities
+  // catat aktivitas (add/delete lagu) di playlist — buat fitur opsional
   async addPlaylistActivity(playlistId, songId, userId, action) {
     const id = `activity-${nanoid(16)}`;
     const time = new Date().toISOString();
@@ -168,8 +180,8 @@ class PlaylistsService {
     await this._pool.query(query);
   }
 
+  // ambil riwayat aktivitas playlist (siapa nambah/hapus lagu apa, kapan)
   async getPlaylistActivities(playlistId) {
-    // Verifikasi playlist ada
     const playlistQuery = {
       text: 'SELECT id FROM playlists WHERE id = $1',
       values: [playlistId],

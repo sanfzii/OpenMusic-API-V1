@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+// migrasi: bikin tabel collaborations (kombinasi playlist_id + user_id harus unik)
 exports.up = (pgm) => {
   pgm.createTable('collaborations', {
     id: {

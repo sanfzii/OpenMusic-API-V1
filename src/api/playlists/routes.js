@@ -1,22 +1,24 @@
+// route buat endpoint /playlists (semua butuh auth)
 const express = require('express');
 const authMiddleware = require('../../middleware/authMiddleware');
 
 const routes = (handler) => {
   const router = express.Router();
 
-  // Semua route playlist butuh authentication
+  // pasang middleware auth — semua endpoint playlist wajib login
   router.use(authMiddleware);
 
+  // CRUD playlist
   router.post('/', handler.postPlaylistHandler);
   router.get('/', handler.getPlaylistsHandler);
   router.delete('/:id', handler.deletePlaylistByIdHandler);
 
-  // Songs in playlist
+  // kelola lagu di dalam playlist
   router.post('/:id/songs', handler.postSongToPlaylistHandler);
   router.get('/:id/songs', handler.getSongsFromPlaylistHandler);
   router.delete('/:id/songs', handler.deleteSongFromPlaylistHandler);
 
-  // Opsional 2: Activities
+  // riwayat aktivitas playlist (fitur opsional)
   router.get('/:id/activities', handler.getPlaylistActivitiesHandler);
 
   return router;

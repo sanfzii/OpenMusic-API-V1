@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+// migrasi: bikin tabel songs (album_id bisa null kalo lagu gak masuk album)
 exports.up = (pgm) => {
   pgm.createTable('songs', {
     id: { type: 'VARCHAR(50)', primaryKey: true },

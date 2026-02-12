@@ -1,3 +1,4 @@
+// migrasi: bikin tabel playlists (owner FK ke users, CASCADE kalo user dihapus)
 exports.up = (pgm) => {
   pgm.createTable('playlists', {
     id: {

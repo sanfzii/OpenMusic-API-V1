@@ -1,3 +1,4 @@
+// induk dari semua custom error buatan kita, default status code-nya 400
 class ClientError extends Error {
   constructor(message, statusCode = 400) {
     super(message);

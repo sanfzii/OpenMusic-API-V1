@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+// migrasi: bikin tabel playlist_song_activities (catat riwayat add/delete lagu)
 exports.up = (pgm) => {
   pgm.createTable('playlist_song_activities', {
     id: {

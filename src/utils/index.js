@@ -1,4 +1,6 @@
-const mapDBToModel = ({ 
+/* eslint-disable camelcase */
+// konversi nama kolom dari snake_case (database) ke camelCase (API)
+const mapDBToModel = ({
   id,
   title,
   year,

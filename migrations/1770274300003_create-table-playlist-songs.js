@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+// migrasi: bikin tabel playlist_songs (junction table — hubungin playlist sama lagu)
 exports.up = (pgm) => {
   pgm.createTable('playlist_songs', {
     id: {

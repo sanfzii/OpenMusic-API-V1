@@ -14,14 +14,14 @@ class SongsHandler {
   async postSongHandler(req, res, next) {
     try {
       // console.log("Data masuk:", req.body); // Cek data body
-      
+
       // Validasi dulu
       this._validator.validateSongPayload(req.body);
-      
+
       const { title, year, genre, performer, duration, albumId } = req.body;
-      
-      const songId = await this._service.addSong({ 
-        title, year, genre, performer, duration, albumId 
+
+      const songId = await this._service.addSong({
+        title, year, genre, performer, duration, albumId
       });
 
       res.status(201).json({
@@ -51,7 +51,7 @@ class SongsHandler {
     try {
       const { id } = req.params;
       const song = await this._service.getSongById(id);
-      
+
       res.json({
         status: 'success',
         data: { song },
@@ -65,9 +65,9 @@ class SongsHandler {
     try {
       this._validator.validateSongPayload(req.body);
       const { id } = req.params;
-      
+
       await this._service.editSongById(id, req.body);
-      
+
       res.json({
         status: 'success',
         message: 'Lagu berhasil diupdate',
@@ -81,7 +81,7 @@ class SongsHandler {
     try {
       const { id } = req.params;
       await this._service.deleteSongById(id);
-      
+
       res.json({
         status: 'success',
         message: 'Lagu berhasil dihapus',

@@ -5,6 +5,7 @@ const {
   DeleteAuthenticationPayloadSchema,
 } = require('./schema');
 
+// validasi payload authentication (ada 3: login, refresh, logout)
 const AuthenticationsValidator = {
   validatePostAuthenticationPayload: (payload) => {
     const validationResult = PostAuthenticationPayloadSchema.validate(payload);

@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+// file utama — tempat semua modul dihubungkan dan server dijalankan
 require('dotenv').config();
 const express = require('express');
 const app = express();
@@ -40,24 +42,22 @@ const CollaborationsService = require('./services/postgres/CollaborationsService
 const CollaborationsValidator = require('./validator/collaborations');
 const CollaborationsHandler = require('./api/collaborations/handler');
 
-// Biar bisa baca JSON dari body request
+// biar bisa baca JSON dari body request
 app.use(express.json());
 
 // --- Instansiasi Service & Handler ---
+// tiap fitur punya service (urusan database) dan handler (terima & kirim response)
 
-// Albums
 const serviceAlbum = new AlbumsService();
 const handlerAlbum = new AlbumsHandler(serviceAlbum, AlbumsValidator);
 
-// Songs
 const serviceLagu = new SongsService();
 const handlerLagu = new SongsHandler(serviceLagu, SongsValidator);
 
-// Users
 const usersService = new UsersService();
 const usersHandler = new UsersHandler(usersService, UsersValidator);
 
-// Authentications
+// auth handler butuh 4 dependency: service auth, service user, token manager, validator
 const authenticationsService = new AuthenticationsService();
 const authenticationsHandler = new AuthenticationsHandler(
   authenticationsService,
@@ -66,22 +66,23 @@ const authenticationsHandler = new AuthenticationsHandler(
   AuthenticationsValidator,
 );
 
-// Collaborations (instansiasi dulu sebelum playlists)
+// collaborations dibikin dulu sebelum playlists karena playlists butuh collaborationsService
 const collaborationsService = new CollaborationsService();
 const collaborationsHandler = new CollaborationsHandler(
   collaborationsService,
-  null, // PlaylistsService akan di-set setelah ini
+  null, // playlistsService di-set nanti di bawah
   CollaborationsValidator,
 );
 
-// Playlists (inject collaborationsService)
+// playlists butuh collaborationsService buat cek akses kolaborator
 const playlistsService = new PlaylistsService(collaborationsService);
 const playlistsHandler = new PlaylistsHandler(playlistsService, PlaylistsValidator);
 
-// Set playlistsService ke collaborationsHandler
+// nah ini baru di-set playlistsService ke collaborationsHandler
 collaborationsHandler._playlistsService = playlistsService;
 
 // --- Register Routes ---
+// tiap endpoint didaftarin ke express app
 app.use('/albums', albumsRouter(handlerAlbum));
 app.use('/songs', songsRouter(handlerLagu));
 app.use('/users', usersRouter(usersHandler));
@@ -89,8 +90,10 @@ app.use('/authentications', authenticationsRouter(authenticationsHandler));
 app.use('/playlists', playlistsRouter(playlistsHandler));
 app.use('/collaborations', collaborationsRouter(collaborationsHandler));
 
-// --- Error Handling ---
+// --- Error Handling Middleware ---
+// semua error dari handler ditangkap disini
 app.use((err, req, res, next) => {
+  // kalo error-nya dari ClientError (atau turunannya), kirim status + pesan sesuai
   if (err instanceof ClientError) {
     return res.status(err.statusCode).json({
       status: 'fail',
@@ -98,7 +101,7 @@ app.use((err, req, res, next) => {
     });
   }
 
-  // Kalau error server
+  // kalo bukan ClientError, berarti error server (500)
   console.error(err);
   return res.status(500).json({
     status: 'error',

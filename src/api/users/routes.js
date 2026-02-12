@@ -1,3 +1,4 @@
+// route buat endpoint /users (registrasi, gak butuh auth)
 const express = require('express');
 
 const routes = (handler) => {

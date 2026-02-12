@@ -4,16 +4,18 @@ const bcrypt = require('bcryptjs');
 const InvariantError = require('../../exceptions/InvariantError');
 const AuthenticationError = require('../../exceptions/AuthenticationError');
 
+// service buat ngurusin data user (register, cek username, login)
 class UsersService {
   constructor() {
     this._pool = new Pool();
   }
 
   async addUser({ username, password, fullname }) {
-    // Verifikasi username unik
+    // pastiin dulu username-nya belum dipake
     await this.verifyNewUsername(username);
 
     const id = `user-${nanoid(16)}`;
+    // hash password pake bcrypt, biar gak disimpan polos di database
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const query = {
@@ -30,6 +32,7 @@ class UsersService {
     return result.rows[0].id;
   }
 
+  // cek apakah username sudah ada di database
   async verifyNewUsername(username) {
     const query = {
       text: 'SELECT username FROM users WHERE username = $1',
@@ -43,6 +46,7 @@ class UsersService {
     }
   }
 
+  // buat proses login — cek username & password cocok atau enggak
   async verifyUserCredential(username, password) {
     const query = {
       text: 'SELECT id, password FROM users WHERE username = $1',
@@ -55,6 +59,7 @@ class UsersService {
       throw new AuthenticationError('Kredensial yang Anda berikan salah');
     }
 
+    // bandingin password yang dikirim sama yang di database (yang udah di-hash)
     const { id, password: hashedPassword } = result.rows[0];
     const match = await bcrypt.compare(password, hashedPassword);
 

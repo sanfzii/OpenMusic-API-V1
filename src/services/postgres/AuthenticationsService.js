@@ -1,11 +1,13 @@
 const { Pool } = require('pg');
 const InvariantError = require('../../exceptions/InvariantError');
 
+// service buat ngurusin refresh token di database
 class AuthenticationsService {
   constructor() {
     this._pool = new Pool();
   }
 
+  // simpan refresh token ke database waktu user login
   async addRefreshToken(token) {
     const query = {
       text: 'INSERT INTO authentications VALUES($1)',
@@ -15,6 +17,7 @@ class AuthenticationsService {
     await this._pool.query(query);
   }
 
+  // cek refresh token masih ada di database atau enggak
   async verifyRefreshToken(token) {
     const query = {
       text: 'SELECT token FROM authentications WHERE token = $1',
@@ -28,6 +31,7 @@ class AuthenticationsService {
     }
   }
 
+  // hapus refresh token dari database (waktu user logout)
   async deleteRefreshToken(token) {
     const query = {
       text: 'DELETE FROM authentications WHERE token = $1',

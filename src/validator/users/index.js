@@ -1,6 +1,7 @@
 const InvariantError = require('../../exceptions/InvariantError');
 const { UserPayloadSchema } = require('./schema');
 
+// validasi payload registrasi user
 const UsersValidator = {
   validateUserPayload: (payload) => {
     const validationResult = UserPayloadSchema.validate(payload);

@@ -1,10 +1,11 @@
+// route buat endpoint /collaborations (semua butuh auth)
 const express = require('express');
 const authMiddleware = require('../../middleware/authMiddleware');
 
 const routes = (handler) => {
   const router = express.Router();
 
-  // Semua route collaborations butuh authentication
+  // pasang middleware auth — cuma user yang login bisa akses
   router.use(authMiddleware);
 
   router.post('/', handler.postCollaborationHandler);

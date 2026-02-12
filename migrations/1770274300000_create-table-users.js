@@ -1,3 +1,4 @@
+// migrasi: bikin tabel users (username harus unik)
 exports.up = (pgm) => {
   pgm.createTable('users', {
     id: {

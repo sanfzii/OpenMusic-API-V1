@@ -10,7 +10,7 @@ class SongsService {
 
   async addSong({ title, year, genre, performer, duration, albumId }) {
     const idLagu = `song-${nanoid(16)}`;
-    
+
     const query = {
       text: 'INSERT INTO songs VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id',
       values: [idLagu, title, year, genre, performer, duration, albumId],
@@ -60,13 +60,13 @@ class SongsService {
     // Biar sesuai kriteria submission tanpa file utils
     const dataDB = hasil.rows[0];
     const dataLagu = {
-        id: dataDB.id,
-        title: dataDB.title,
-        year: dataDB.year,
-        performer: dataDB.performer,
-        genre: dataDB.genre,
-        duration: dataDB.duration,
-        albumId: dataDB.album_id, // Perhatikan ini
+      id: dataDB.id,
+      title: dataDB.title,
+      year: dataDB.year,
+      performer: dataDB.performer,
+      genre: dataDB.genre,
+      duration: dataDB.duration,
+      albumId: dataDB.album_id, // Perhatikan ini
     };
 
     return dataLagu;

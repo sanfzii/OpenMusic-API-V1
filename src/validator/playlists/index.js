@@ -1,6 +1,7 @@
 const InvariantError = require('../../exceptions/InvariantError');
 const { PlaylistPayloadSchema, PlaylistSongPayloadSchema } = require('./schema');
 
+// validasi payload playlist (ada 2: bikin playlist & kelola lagu)
 const PlaylistsValidator = {
   validatePlaylistPayload: (payload) => {
     const validationResult = PlaylistPayloadSchema.validate(payload);

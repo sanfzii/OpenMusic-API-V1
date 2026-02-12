@@ -1,3 +1,4 @@
+// route buat endpoint /authentications (login, refresh, logout)
 const express = require('express');
 
 const routes = (handler) => {

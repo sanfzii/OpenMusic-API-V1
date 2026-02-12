@@ -1,3 +1,4 @@
+// migrasi: bikin tabel authentications (nyimpan refresh token)
 exports.up = (pgm) => {
   pgm.createTable('authentications', {
     token: {

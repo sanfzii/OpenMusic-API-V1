@@ -1,3 +1,4 @@
+// migrasi: bikin tabel albums
 exports.up = (pgm) => {
   pgm.createTable('albums', {
     id: { type: 'VARCHAR(50)', primaryKey: true },

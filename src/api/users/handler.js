@@ -1,3 +1,4 @@
+// handler buat endpoint POST /users (registrasi user baru)
 class UsersHandler {
   constructor(service, validator) {
     this._service = service;

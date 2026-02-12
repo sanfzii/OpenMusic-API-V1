@@ -3,13 +3,14 @@ const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 
+// service buat ngurusin kolaborator playlist
 class CollaborationsService {
   constructor() {
     this._pool = new Pool();
   }
 
   async addCollaboration(playlistId, userId) {
-    // Verifikasi userId ada di database
+    // cek dulu user yang mau ditambah ada atau enggak
     const userQuery = {
       text: 'SELECT id FROM users WHERE id = $1',
       values: [userId],
@@ -48,6 +49,7 @@ class CollaborationsService {
     }
   }
 
+  // dipake sama PlaylistsService buat ngecek apakah user ini kolaborator
   async verifyCollaborator(playlistId, userId) {
     const query = {
       text: 'SELECT * FROM collaborations WHERE playlist_id = $1 AND user_id = $2',

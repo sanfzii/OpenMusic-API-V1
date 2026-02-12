@@ -1,3 +1,4 @@
+// route buat endpoint /albums (gak butuh auth)
 const express = require('express');
 const router = express.Router();
 
@@ -6,8 +7,8 @@ const routes = (handler) => {
   router.get('/:id', handler.getAlbumByIdHandler);
   router.put('/:id', handler.putAlbumByIdHandler);
   router.delete('/:id', handler.deleteAlbumByIdHandler);
-  
-  return router; 
+
+  return router;
 };
 
-module.exports = routes; 
+module.exports = routes;
