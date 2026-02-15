@@ -1,0 +1,6 @@
+{
+  "migrationTableName": "pgmigrations",
+  "dir": "migrations",
+  "schema": "public",
+  "decamelize": true
+}

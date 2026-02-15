@@ -4,8 +4,9 @@ const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 
 class AlbumsService {
-  constructor() {
+  constructor(storageService = null) {
     this._pool = new Pool();
+    this._storageService = storageService; // optional, dipakai kalau butuh manage cover files
   }
 
   async addAlbum({ name, year }) {
@@ -49,9 +50,42 @@ class AlbumsService {
     // Gabungkan hasilnya
     const album = albumResult.rows[0];
     return {
-      ...album,
+      id: album.id,
+      name: album.name,
+      year: album.year,
+      coverUrl: album.cover || null, // cover URL (nullable)
       songs: songsResult.rows, // Masukkan array lagu ke objek album
     };
+  }
+
+  // update cover URL di database
+  async updateAlbumCover(albumId, coverUrl) {
+    const query = {
+      text: 'UPDATE albums SET cover = $1 WHERE id = $2 RETURNING id',
+      values: [coverUrl, albumId],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rows.length) {
+      throw new NotFoundError('Gagal update cover. Album tidak ditemukan');
+    }
+  }
+
+  // get old cover URL untuk delete file lama
+  async getOldCoverUrl(albumId) {
+    const query = {
+      text: 'SELECT cover FROM albums WHERE id = $1',
+      values: [albumId],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rows.length) {
+      throw new NotFoundError('Album tidak ditemukan');
+    }
+
+    return result.rows[0].cover; // return null jika belum ada cover
   }
 
   async editAlbumById(id, { name, year }) {
